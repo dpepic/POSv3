@@ -37,12 +37,7 @@ public class Comm {
 		try
 		{	
 			ResultSet rs = kom.executeQuery(String.format("CALL dajTabelu('%s')", tip));	
-			int brojKolona = rs.getMetaData().getColumnCount();
-			naziviKolona = new String[brojKolona];
-			for (int i = 1; i <= brojKolona; i++)
-			{
-				naziviKolona[i-1] = rs.getMetaData().getColumnName(i);
-			}
+			int brojKolona = dajNaziveKolona(rs);
 			
 			DatabaseMetaData dbmd = nasaKonekcija.getMetaData();
 			ResultSet primarni = dbmd.getPrimaryKeys(null, rs.getMetaData().getSchemaName(1), rs.getMetaData().getTableName(1));
@@ -94,6 +89,42 @@ public class Comm {
 		return 0;
 	}
 	
+	public static void dajFirmu(String PK)
+	{
+		sviRedovi.clear();
+		ozbiljnaKonekcija();
+		
+		try 
+		{
+			ResultSet rs = kom.executeQuery(String.format("CALL dajFirmu('%s')", PK));
+			int brojKolona = dajNaziveKolona(rs);
+			rs.next();
+			String[] red = new String[brojKolona];
+			for (int i = 0; i < brojKolona; i++)
+			{
+				red[i] = rs.getString(i+1);
+			}
+			sviRedovi.add(red);
+			rs = kom.executeQuery(String.format("CALL dajAdrese('%s')", PK));
+			
+			brojKolona = dajNaziveKolona(rs);
+			while (rs.next())
+			{
+				red = new String[brojKolona];
+				for (int i = 0; i < brojKolona; i++)
+				{
+					red[i] = rs.getString(i+1);
+				}
+				sviRedovi.add(red);
+			}
+			
+			nasaKonekcija.close();
+		} catch (SQLException joj)
+		{
+			joj.printStackTrace();
+		}
+	}
+	
 	public static void izmenaArtikla(String naziv, String lager, String ulazna,
 			                       String marza, String porez, String PK)
 	{
@@ -107,6 +138,17 @@ public class Comm {
 		{
 			e.printStackTrace();
 		}
+	}
+	
+	public static int dajNaziveKolona(ResultSet rs) throws SQLException
+	{
+		int brojKolona = rs.getMetaData().getColumnCount();
+		naziviKolona = new String[brojKolona];
+		for (int i = 1; i <= brojKolona; i++)
+		{
+			naziviKolona[i-1] = rs.getMetaData().getColumnName(i);
+		}
+		return brojKolona;
 	}
 
 }
