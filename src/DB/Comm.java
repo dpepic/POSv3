@@ -89,6 +89,30 @@ public class Comm {
 		return 0;
 	}
 
+	public static void dajArtikal(String PK)
+	{
+		sviRedovi.clear();
+		ozbiljnaKonekcija();
+		
+		try
+		{
+			ResultSet rs = kom.executeQuery(String.format("CALL dajArtikal('%s')", PK));
+			if (rs.next())
+			{
+				int brojKolona = dajNaziveKolona(rs);
+				String[] red = new String[brojKolona];
+				for (int i = 0; i < brojKolona; i++)
+				{
+					red[i] = rs.getString(i+1);
+				}
+				sviRedovi.add(red);
+			}
+			nasaKonekcija.close();
+		} catch (SQLException joj)
+		{
+			joj.printStackTrace();
+		}
+	}
 	public static void dajFirmu(String PK)
 	{
 		sviRedovi.clear();
@@ -142,14 +166,14 @@ public class Comm {
 		}
 	}
 
-	public static void izmenaArtikla(String naziv, String lager, String ulazna,
-			String marza, String porez, String PK)
+	public static void izmenaArtikla(String PK, String naziv, String lager, String ulazna,
+			String marza, String porez)
 	{
 		ozbiljnaKonekcija();
 		try
 		{
 			kom.executeQuery(String.format("CALL izmenaArtikla('%s', '%s', '%s', '%s', '%s', '%s')",
-					naziv, lager, ulazna, marza, porez, PK));
+					PK, naziv, lager, ulazna, marza, porez));
 			nasaKonekcija.close();
 		} catch (SQLException e)
 		{

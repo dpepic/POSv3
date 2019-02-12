@@ -44,7 +44,6 @@ CREATE TABLE `adresa` (
 
 LOCK TABLES `adresa` WRITE;
 /*!40000 ALTER TABLE `adresa` DISABLE KEYS */;
-INSERT INTO `adresa` (`ID`, `ID pravnog lica`, `Postanski broj`, `Grad`, `Ulica`, `Broj`) VALUES (6,124,'23300','Kikinda','Dositejeva','124');
 /*!40000 ALTER TABLE `adresa` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -66,10 +65,8 @@ CREATE TABLE `artikal` (
   `Porez procenat` int(10) unsigned NOT NULL,
   `Izlazna cena` double GENERATED ALWAYS AS ((`Cena sa marzom` + (`Cena sa marzom` * (`Porez procenat` / 100)))) STORED,
   PRIMARY KEY (`ID`),
-  UNIQUE KEY `Naziv_UNIQUE` (`Naziv`),
-  KEY `Merna jedinica_idx` (`Merna jedinica`),
-  CONSTRAINT `Merna jedinica` FOREIGN KEY (`Merna jedinica`) REFERENCES `jedinice` (`naziv jedinice`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `Naziv_UNIQUE` (`Naziv`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -78,31 +75,8 @@ CREATE TABLE `artikal` (
 
 LOCK TABLES `artikal` WRITE;
 /*!40000 ALTER TABLE `artikal` DISABLE KEYS */;
-INSERT INTO `artikal` (`ID`, `Naziv`, `Lager`, `Merna jedinica`, `Ulazna cena`, `Marza procenat`, `Porez procenat`) VALUES (4,'Kafa',500,'g',20,35,20),(8,'nasda',200,'kom',100,25,14),(9,'Test',10,'kom',15,20,25);
+INSERT INTO `artikal` (`ID`, `Naziv`, `Lager`, `Merna jedinica`, `Ulazna cena`, `Marza procenat`, `Porez procenat`) VALUES (4,'Kafa',500,'g',20,35,20),(9,'Test',10,'kom',15,20,25),(10,'Plazam',123,'kom',300,25,17);
 /*!40000 ALTER TABLE `artikal` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `jedinice`
---
-
-DROP TABLE IF EXISTS `jedinice`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `jedinice` (
-  `Naziv jedinice` varchar(10) NOT NULL,
-  PRIMARY KEY (`Naziv jedinice`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jedinice`
---
-
-LOCK TABLES `jedinice` WRITE;
-/*!40000 ALTER TABLE `jedinice` DISABLE KEYS */;
-INSERT INTO `jedinice` VALUES ('g'),('Kg'),('kom'),('l');
-/*!40000 ALTER TABLE `jedinice` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -124,7 +98,7 @@ CREATE TABLE `lice` (
   UNIQUE KEY `JIB_UNIQUE` (`JIB`),
   UNIQUE KEY `PIB_UNIQUE` (`PIB`),
   UNIQUE KEY `Naziv_UNIQUE` (`Naziv`)
-) ENGINE=InnoDB AUTO_INCREMENT=126 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=128 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -133,7 +107,7 @@ CREATE TABLE `lice` (
 
 LOCK TABLES `lice` WRITE;
 /*!40000 ALTER TABLE `lice` DISABLE KEYS */;
-INSERT INTO `lice` VALUES (124,'123456','12345','Neka Firma','061555444','024557788','neko@nekafirma.nesto'),(125,'54321','4321','Druga firma','12345','123456','asd@asd.asd');
+INSERT INTO `lice` VALUES (125,'112233','332211','Osma firma','12345','123456','asd@asd.asd'),(126,'8899','9988','Nova firma','9876','2345','ert@asd.ner'),(127,'667788','887766','Proba unosa','4455','5544','qwe@qwe.qwe');
 /*!40000 ALTER TABLE `lice` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -417,15 +391,49 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `izmenaArtikla`(IN nzv VARCHAR(45), IN lager VARCHAR(45), IN ulazna VARCHAR(45),
-                                  IN marza VARCHAR(45), IN porez VARCHAR(45), IN PK VARCHAR(45))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `izmenaArtikla`(IN PK VARCHAR(45), IN nzv VARCHAR(45), IN lager VARCHAR(45), IN ulazna VARCHAR(45),
+                                  IN marza VARCHAR(45), IN porez VARCHAR(45))
 BEGIN
-	IF (PK = -1) THEN
+	IF (PK >= 0) THEN
+		UPDATE artikal
+        SET `Naziv` = nzv, `Lager` = lager, `Ulazna cena` = ulazna,
+			`Marza procenat` = marza, `Porez procenat` = porez
+		WHERE ID = PK;
+    ELSE
 		INSERT INTO artikal
 		(`Naziv`, `Lager`, `Ulazna cena`, `Marza procenat`,
 		`Porez procenat`)
 		VALUES(nzv, lager, ulazna, marza, porez);
 	END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `izmenaFirme` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `izmenaFirme`(IN PK VARCHAR(45), JIB VARCHAR(45), PIB VARCHAR(45), Naziv VARCHAR(45), 
+                            Tel VARCHAR(45), Fax VARCHAR(45), Mail VARCHAR(45))
+BEGIN
+	IF (PK >= 0) THEN 
+		UPDATE lice 
+		SET `JIB` = JIB, `PIB` = PIB, `Naziv` = Naziv, 
+			`Tel`=Tel, `Fax` = Fax, `e-mail`= Mail
+		WHERE ID = PK;
+	ELSE 
+		INSERT INTO lice
+        (`JIB`, `PIB`, `Naziv`, `Tel`, `Fax`, `e-mail`)
+        VALUES (Jib, Pib, Naziv, Tel, Fax, Mail);
+    END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -468,6 +476,9 @@ CASE (tabela)
 	WHEN "artikal" THEN
 		DELETE FROM artikal
 		WHERE ID = IDreda;
+	WHEN "lice" THEN
+		DELETE FROM lice
+        WHERE ID = IDreda;
 END CASE;
 END ;;
 DELIMITER ;
@@ -525,4 +536,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-02-11 11:53:51
+-- Dump completed on 2019-02-12 11:46:25

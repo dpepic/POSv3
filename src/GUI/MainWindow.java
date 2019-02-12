@@ -18,6 +18,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
+import java.awt.Frame;
 
 public class MainWindow {
 
@@ -53,6 +54,7 @@ public class MainWindow {
 	 */
 	private void initialize() {
 		frame = new JFrame();
+		frame.setExtendedState(Frame.MAXIMIZED_BOTH);
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.X_AXIS));
@@ -138,9 +140,43 @@ public class MainWindow {
 		panel_3.setLayout(new BoxLayout(panel_3, BoxLayout.Y_AXIS));
 		
 		JButton btnUnos = new JButton("Unos");
+		btnUnos.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				oArtiklu dialog = new oArtiklu("-1");
+				dialog.addWindowListener(new WindowAdapter() 
+				{
+					@Override
+					public void windowClosed(WindowEvent arg0) 
+					{
+						tblArtikli.setModel(ucitajPodatke("artikli"));
+					}
+				});
+				dialog.setVisible(true);
+			}
+		});
 		panel_3.add(btnUnos);
 		
 		JButton btnIzmena = new JButton("Izmena");
+		btnIzmena.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) 
+			{
+				if (tblArtikli.getSelectedRowCount() == 1)
+				{
+					oArtiklu dialog = new oArtiklu(tblArtikli.getValueAt(tblArtikli.getSelectedRow(), 0).toString());
+					dialog.addWindowListener(new WindowAdapter() 
+					{
+						@Override
+						public void windowClosed(WindowEvent arg0) 
+						{
+							tblArtikli.setModel(ucitajPodatke("artikli"));
+						}
+					});
+					dialog.setVisible(true);
+				}
+			}
+		});
 		panel_3.add(btnIzmena);
 		
 		JButton btnBrisanje = new JButton("Brisanje");
@@ -164,6 +200,8 @@ public class MainWindow {
 		tblArtikli.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tblArtikli.setModel(ucitajPodatke("artikli"));
 		scrollPane_1.setViewportView(tblArtikli);
+		frame.setLocationRelativeTo(null);
+		
 	}
 
 	public DefaultTableModel ucitajPodatke(String sta)
