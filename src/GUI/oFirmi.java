@@ -37,48 +37,58 @@ public class oFirmi extends JDialog {
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(null);
 		{
-			txtJIB = new JTextField(Comm.sviRedovi.get(0)[1]);
+			txtJIB = new JTextField();
 			txtJIB.setBounds(54, 11, 86, 20);
 			contentPanel.add(txtJIB);
 			txtJIB.setColumns(10);
 		}
 		{
-			txtPIB = new JTextField(Comm.sviRedovi.get(0)[2]);
+			txtPIB = new JTextField();
 			txtPIB.setBounds(54, 42, 86, 20);
 			contentPanel.add(txtPIB);
 			txtPIB.setColumns(10);
 		}
 		{
-			txtNaziv = new JTextField(Comm.sviRedovi.get(0)[3]);
+			txtNaziv = new JTextField();
 			txtNaziv.setBounds(54, 73, 86, 20);
 			contentPanel.add(txtNaziv);
 			txtNaziv.setColumns(10);
 		}
 		{
-			txtTel = new JTextField(Comm.sviRedovi.get(0)[4]);
+			txtTel = new JTextField();
 			txtTel.setBounds(54, 104, 86, 20);
 			contentPanel.add(txtTel);
 			txtTel.setColumns(10);
 		}
 		{
-			txtFax = new JTextField(Comm.sviRedovi.get(0)[5]);
+			txtFax = new JTextField();
 			txtFax.setBounds(54, 135, 86, 20);
 			contentPanel.add(txtFax);
 			txtFax.setColumns(10);
 		}
 		{
-			txtMail = new JTextField(Comm.sviRedovi.get(0)[6]);
+			txtMail = new JTextField();
 			txtMail.setBounds(54, 167, 86, 20);
 			contentPanel.add(txtMail);
 			txtMail.setColumns(10);
 		}
-		{
-			if (Comm.sviRedovi.size() == 1)
+			if (!PK.equals("-1"))
 			{
-				txtGrad = new JTextField();
-			} else
+				
+				txtJIB.setText(Comm.sviRedovi.get(0)[1]);
+				txtPIB.setText(Comm.sviRedovi.get(0)[2]);
+				txtNaziv.setText(Comm.sviRedovi.get(0)[3]);
+				txtTel.setText(Comm.sviRedovi.get(0)[4]);
+				txtFax.setText(Comm.sviRedovi.get(0)[5]);
+				txtMail.setText(Comm.sviRedovi.get(0)[6]);
+			}
+		{
+			if (Comm.sviRedovi.size() > 1)
 			{
 				txtGrad = new JTextField(Comm.sviRedovi.get(1)[3]);
+			} else
+			{
+				txtGrad = new JTextField();
 			}
 			txtGrad.setBounds(296, 73, 86, 20);
 			contentPanel.add(txtGrad);
@@ -108,6 +118,14 @@ public class oFirmi extends JDialog {
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
 				JButton okButton = new JButton("OK");
+				okButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) 
+					{
+						Comm.izmenaFirme(PK, txtJIB.getText(), txtPIB.getText(), txtNaziv.getText(), txtTel.getText(), 
+								         txtFax.getText(), txtMail.getText());
+						dispose();
+					}
+				});
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);

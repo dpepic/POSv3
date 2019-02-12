@@ -23,6 +23,7 @@ public class MainWindow {
 
 	private JFrame frame;
 	private JTable tblLica;
+	private JTable tblArtikli;
 
 	/**
 	 * Launch the application.
@@ -78,14 +79,46 @@ public class MainWindow {
 						@Override
 						public void windowClosed(WindowEvent arg0) 
 						{
-							System.out.println("Byeeeeee :(");
+							tblLica.setModel(ucitajPodatke("lica"));
 						}
 					});
 					dialog.setVisible(true);
 				}
 			}
 		});
+		panel_2.setLayout(new BoxLayout(panel_2, BoxLayout.Y_AXIS));
+		
+		JButton btnNovaFirma = new JButton("Nova firma");
+		btnNovaFirma.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				oFirmi dialog = new oFirmi("-1");
+				dialog.addWindowListener(new WindowAdapter() 
+				{
+					@Override
+					public void windowClosed(WindowEvent arg0) 
+					{
+						tblLica.setModel(ucitajPodatke("lica"));
+					}
+				});
+				dialog.setVisible(true);
+			}
+		});
+		panel_2.add(btnNovaFirma);
 		panel_2.add(btnOFirmi);
+		
+		JButton btnObrisi = new JButton("Obrisi");
+		btnObrisi.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) 
+			{
+				if (tblLica.getSelectedRowCount() == 1)
+				{
+					Comm.obrisiRed(tblLica.getValueAt(tblLica.getSelectedRow(), 0).toString(), "lice");
+					tblLica.setModel(ucitajPodatke("lica"));
+				}
+			}
+		});
+		panel_2.add(btnObrisi);
 
 		JScrollPane scrollPane = new JScrollPane();
 		panel.add(scrollPane, BorderLayout.CENTER);
@@ -97,7 +130,40 @@ public class MainWindow {
 		scrollPane.setViewportView(tblLica);
 
 		JPanel panel_1 = new JPanel();
-		tabbedPane.addTab("New tab", null, panel_1, null);
+		tabbedPane.addTab("Artikli", null, panel_1, null);
+		panel_1.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel_3 = new JPanel();
+		panel_1.add(panel_3, BorderLayout.EAST);
+		panel_3.setLayout(new BoxLayout(panel_3, BoxLayout.Y_AXIS));
+		
+		JButton btnUnos = new JButton("Unos");
+		panel_3.add(btnUnos);
+		
+		JButton btnIzmena = new JButton("Izmena");
+		panel_3.add(btnIzmena);
+		
+		JButton btnBrisanje = new JButton("Brisanje");
+		btnBrisanje.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				if (tblArtikli.getSelectedRowCount() == 1)
+				{
+					Comm.obrisiRed(tblArtikli.getValueAt(tblArtikli.getSelectedRow(), 0).toString(), "artikal");
+					tblArtikli.setModel(ucitajPodatke("artikli"));
+				}
+			}
+		});
+		panel_3.add(btnBrisanje);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		panel_1.add(scrollPane_1, BorderLayout.CENTER);
+		
+		tblArtikli = new JTable();
+		tblArtikli.setDefaultEditor(Object.class, null);
+		tblArtikli.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tblArtikli.setModel(ucitajPodatke("artikli"));
+		scrollPane_1.setViewportView(tblArtikli);
 	}
 
 	public DefaultTableModel ucitajPodatke(String sta)

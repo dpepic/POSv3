@@ -12,10 +12,10 @@ public class Comm {
 	public static String[] naziviKolona;
 	public static Vector<String[]> sviRedovi = new Vector<String[]>();
 	//public static Vector<String[]> PK = new Vector<String[]>();
-	
+
 	private static Connection nasaKonekcija  = null;
 	private static Statement kom = null;
-	
+
 	public static void ozbiljnaKonekcija()
 	{
 		try 
@@ -29,7 +29,7 @@ public class Comm {
 			e.printStackTrace();
 		} 
 	}
-	
+
 	public static void dajPodatke(String tip) 
 	{
 		ozbiljnaKonekcija();
@@ -38,10 +38,10 @@ public class Comm {
 		{	
 			ResultSet rs = kom.executeQuery(String.format("CALL dajTabelu('%s')", tip));	
 			int brojKolona = dajNaziveKolona(rs);
-			
+
 			DatabaseMetaData dbmd = nasaKonekcija.getMetaData();
 			ResultSet primarni = dbmd.getPrimaryKeys(null, rs.getMetaData().getSchemaName(1), rs.getMetaData().getTableName(1));
-			
+
 			Vector<String> PKkolone = new Vector<String>();
 			while (primarni.next())
 			{
@@ -50,7 +50,7 @@ public class Comm {
 					PKkolone.add(primarni.getString("COLUMN_NAME"));
 				}
 			}
-			
+
 			while (rs.next())
 			{     
 				String[] red = new String[brojKolona];
@@ -68,78 +68,95 @@ public class Comm {
 				sviRedovi.add(red);
 			}		
 			nasaKonekcija.close();
-			
+
 		} catch (SQLException joj)
 		{
 			joj.printStackTrace();
 		}
 	}
-	
-	public static int obrisiRed(String tip, String IDreda)
+
+	public static int obrisiRed(String IDreda, String tip)
 	{
 		ozbiljnaKonekcija();
 		try 
 		{
-			ResultSet rs = kom.executeQuery(String.format("CALL obrisiRed('%s', '%s')", IDreda, tip));
+			kom.executeQuery(String.format("CALL obrisiRed('%s', '%s')", IDreda, tip));
 			nasaKonekcija.close();
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
 		return 0;
 	}
-	
+
 	public static void dajFirmu(String PK)
 	{
 		sviRedovi.clear();
 		ozbiljnaKonekcija();
-		
+
 		try 
 		{
 			ResultSet rs = kom.executeQuery(String.format("CALL dajFirmu('%s')", PK));
 			int brojKolona = dajNaziveKolona(rs);
-			rs.next();
-			String[] red = new String[brojKolona];
-			for (int i = 0; i < brojKolona; i++)
+			if (rs.next())
 			{
-				red[i] = rs.getString(i+1);
-			}
-			sviRedovi.add(red);
-			rs = kom.executeQuery(String.format("CALL dajAdrese('%s')", PK));
-			
-			brojKolona = dajNaziveKolona(rs);
-			while (rs.next())
-			{
-				red = new String[brojKolona];
+				String[] red = new String[brojKolona];
 				for (int i = 0; i < brojKolona; i++)
 				{
 					red[i] = rs.getString(i+1);
 				}
 				sviRedovi.add(red);
+				rs = kom.executeQuery(String.format("CALL dajAdrese('%s')", PK));
+
+				brojKolona = dajNaziveKolona(rs);
+				while (rs.next())
+				{
+					red = new String[brojKolona];
+					for (int i = 0; i < brojKolona; i++)
+					{
+						red[i] = rs.getString(i+1);
+					}
+					sviRedovi.add(red);
+				}
 			}
-			
 			nasaKonekcija.close();
 		} catch (SQLException joj)
 		{
 			joj.printStackTrace();
 		}
 	}
-	
+
+	public static void izmenaFirme(String PK, String JIB, String PIB,
+			String naziv, String tel, String fax,
+			String mail)
+	{
+		ozbiljnaKonekcija();
+		try
+		{
+			kom.executeQuery(String.format("CALL izmenaFirme('%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+					PK, JIB, PIB, naziv, tel, fax, mail));
+			nasaKonekcija.close();
+		} catch (SQLException joj)
+		{
+			joj.printStackTrace();
+		}
+	}
+
 	public static void izmenaArtikla(String naziv, String lager, String ulazna,
-			                       String marza, String porez, String PK)
+			String marza, String porez, String PK)
 	{
 		ozbiljnaKonekcija();
 		try
 		{
 			kom.executeQuery(String.format("CALL izmenaArtikla('%s', '%s', '%s', '%s', '%s', '%s')",
-					                        naziv, lager, ulazna, marza, porez, PK));
+					naziv, lager, ulazna, marza, porez, PK));
 			nasaKonekcija.close();
 		} catch (SQLException e)
 		{
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static int dajNaziveKolona(ResultSet rs) throws SQLException
 	{
 		int brojKolona = rs.getMetaData().getColumnCount();
