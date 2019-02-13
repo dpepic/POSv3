@@ -89,6 +89,31 @@ public class Comm {
 		return 0;
 	}
 
+	public static void dajArtikleSaRacuna(String PK)
+	{
+		sviRedovi.clear();
+		ozbiljnaKonekcija();
+		
+		try
+		{
+			ResultSet rs = kom.executeQuery(String.format("CALL dajArtikleSaRacuna('%s')", PK));
+			int brojKolona = dajNaziveKolona(rs);
+			
+			while (rs.next())
+			{
+				String[] red = new String[brojKolona];
+				for (int i = 0; i < brojKolona; i++)
+				{
+					red[i] = rs.getString(i+1);
+				}
+				sviRedovi.add(red);
+			}
+			nasaKonekcija.close();
+		} catch (SQLException joj)
+		{
+			joj.printStackTrace();
+		}
+	}
 	public static void dajArtikal(String PK)
 	{
 		sviRedovi.clear();

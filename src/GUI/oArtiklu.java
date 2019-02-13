@@ -24,6 +24,7 @@ public class oArtiklu extends JDialog {
 	private JTextField txtMP;
 	private JTextField txtPP;
 	private JTextField txtLager;
+	private JLabel lblNaziv;
 
 
 	public oArtiklu(String PK) {
@@ -74,13 +75,20 @@ public class oArtiklu extends JDialog {
 		lblCM.setBounds(206, 189, 46, 14);
 		contentPanel.add(lblCM);
 		
-		JLabel lblCP = new JLabel("New label");
-		lblCP.setBounds(206, 230, 46, 14);
-		contentPanel.add(lblCP);
+		lblNaziv = new JLabel("Naziv:");
+		lblNaziv.setBounds(28, 40, 46, 14);
+		contentPanel.add(lblNaziv);
 		
 		if (!PK.equals("-1"))
 		{
 			txtNaziv.setText(Comm.sviRedovi.get(0)[1]);
+			txtLager.setText(Comm.sviRedovi.get(0)[2]);
+			txtMJ.setText(Comm.sviRedovi.get(0)[3]);
+			txtUcena.setText(Comm.sviRedovi.get(0)[4]);
+			txtMP.setText(Comm.sviRedovi.get(0)[5]);
+			lblCM.setText(Comm.sviRedovi.get(0)[6]);
+			txtPP.setText(Comm.sviRedovi.get(0)[7]);
+			lblPC.setText(Comm.sviRedovi.get(0)[8]);
 		}
 		{
 			JPanel buttonPane = new JPanel();

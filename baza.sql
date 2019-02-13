@@ -66,7 +66,7 @@ CREATE TABLE `artikal` (
   `Izlazna cena` double GENERATED ALWAYS AS ((`Cena sa marzom` + (`Cena sa marzom` * (`Porez procenat` / 100)))) STORED,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `Naziv_UNIQUE` (`Naziv`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -75,7 +75,7 @@ CREATE TABLE `artikal` (
 
 LOCK TABLES `artikal` WRITE;
 /*!40000 ALTER TABLE `artikal` DISABLE KEYS */;
-INSERT INTO `artikal` (`ID`, `Naziv`, `Lager`, `Merna jedinica`, `Ulazna cena`, `Marza procenat`, `Porez procenat`) VALUES (4,'Kafa',500,'g',20,35,20),(9,'Test',10,'kom',15,20,25),(10,'Plazam',123,'kom',300,25,17);
+INSERT INTO `artikal` (`ID`, `Naziv`, `Lager`, `Merna jedinica`, `Ulazna cena`, `Marza procenat`, `Porez procenat`) VALUES (4,'Kafa',500,'g',20,35,20),(9,'Test',8,'kom',15,20,25),(10,'Plazam',122,'kom',300,25,17),(11,'Tamo nesto',200,'kom',25,17,15);
 /*!40000 ALTER TABLE `artikal` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -153,7 +153,7 @@ CREATE TABLE `racun` (
 
 LOCK TABLES `racun` WRITE;
 /*!40000 ALTER TABLE `racun` DISABLE KEYS */;
-INSERT INTO `racun` VALUES (3,'2011-01-01 00:00:00',NULL,NULL,459.25),(4,'2002-01-01 00:00:00',NULL,NULL,459.25),(5,'2019-04-02 00:00:00',NULL,NULL,169.9),(6,'2020-01-01 00:00:00',NULL,NULL,15358.75),(7,'1900-05-05 00:00:00',NULL,NULL,0);
+INSERT INTO `racun` VALUES (3,'2011-01-01 00:00:00',NULL,NULL,6636.15),(5,'2019-04-02 00:00:00',NULL,NULL,144.9),(7,'1900-05-05 00:00:00',NULL,NULL,1496.25);
 /*!40000 ALTER TABLE `racun` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -167,8 +167,11 @@ DROP TABLE IF EXISTS `racun_artikal`;
 CREATE TABLE `racun_artikal` (
   `ID racuna` int(10) unsigned NOT NULL,
   `ID artikla` int(10) unsigned NOT NULL,
-  `kolicina` int(10) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`ID racuna`,`ID artikla`)
+  `Kolicina` int(10) unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`ID racuna`,`ID artikla`),
+  KEY `artikalFK` (`ID artikla`),
+  CONSTRAINT `artikalFK` FOREIGN KEY (`ID artikla`) REFERENCES `artikal` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `racunFK` FOREIGN KEY (`ID racuna`) REFERENCES `racun` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -178,7 +181,7 @@ CREATE TABLE `racun_artikal` (
 
 LOCK TABLES `racun_artikal` WRITE;
 /*!40000 ALTER TABLE `racun_artikal` DISABLE KEYS */;
-INSERT INTO `racun_artikal` VALUES (3,1,1),(3,2,1),(3,3,1),(4,2,1),(4,3,1),(5,2,1),(5,4,1),(6,2,100),(6,3,5);
+INSERT INTO `racun_artikal` VALUES (3,4,1),(3,9,1),(3,10,15),(5,4,1),(5,9,5),(7,9,8),(7,10,3);
 /*!40000 ALTER TABLE `racun_artikal` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -337,6 +340,28 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `dajArtikleSaRacuna` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `dajArtikleSaRacuna`(IN IDracuna VARCHAR(45))
+BEGIN
+	SELECT a.Naziv, ra.Kolicina, a.`Izlazna cena` * ra.Kolicina As 'Prodajna cena'
+	FROM racun_artikal ra
+	INNER JOIN artikal a ON ra.`ID artikla` = ID
+	WHERE `ID racuna` = IDracuna;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `dajFirmu` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -374,6 +399,8 @@ BEGIN
 				SELECT * FROM licesaadresom;
 			WHEN "artikli" THEN
 				SELECT * FROM artikal;
+			WHEN "racuni" THEN
+				SELECT * FROM racun;
         END CASE;
 END ;;
 DELIMITER ;
@@ -479,6 +506,9 @@ CASE (tabela)
 	WHEN "lice" THEN
 		DELETE FROM lice
         WHERE ID = IDreda;
+	WHEN "racun" THEN
+		DELETE FROM racun
+        WHERE ID = IDreda;
 END CASE;
 END ;;
 DELIMITER ;
@@ -536,4 +566,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-02-12 11:46:25
+-- Dump completed on 2019-02-13 11:44:47

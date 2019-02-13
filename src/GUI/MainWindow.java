@@ -25,6 +25,7 @@ public class MainWindow {
 	private JFrame frame;
 	private JTable tblLica;
 	private JTable tblArtikli;
+	private JTable tblRacuni;
 
 	/**
 	 * Launch the application.
@@ -81,7 +82,7 @@ public class MainWindow {
 						@Override
 						public void windowClosed(WindowEvent arg0) 
 						{
-							tblLica.setModel(ucitajPodatke("lica"));
+							tblLica.setModel(ucitajPodatke("lica", null));
 						}
 					});
 					dialog.setVisible(true);
@@ -100,7 +101,7 @@ public class MainWindow {
 					@Override
 					public void windowClosed(WindowEvent arg0) 
 					{
-						tblLica.setModel(ucitajPodatke("lica"));
+						tblLica.setModel(ucitajPodatke("lica", null));
 					}
 				});
 				dialog.setVisible(true);
@@ -116,7 +117,7 @@ public class MainWindow {
 				if (tblLica.getSelectedRowCount() == 1)
 				{
 					Comm.obrisiRed(tblLica.getValueAt(tblLica.getSelectedRow(), 0).toString(), "lice");
-					tblLica.setModel(ucitajPodatke("lica"));
+					tblLica.setModel(ucitajPodatke("lica", null));
 				}
 			}
 		});
@@ -128,7 +129,7 @@ public class MainWindow {
 		tblLica = new JTable();
 		tblLica.setDefaultEditor(Object.class, null);
 		tblLica.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tblLica.setModel(ucitajPodatke("lica"));
+		tblLica.setModel(ucitajPodatke("lica", null));
 		scrollPane.setViewportView(tblLica);
 
 		JPanel panel_1 = new JPanel();
@@ -150,7 +151,7 @@ public class MainWindow {
 					@Override
 					public void windowClosed(WindowEvent arg0) 
 					{
-						tblArtikli.setModel(ucitajPodatke("artikli"));
+						tblArtikli.setModel(ucitajPodatke("artikli", null));
 					}
 				});
 				dialog.setVisible(true);
@@ -170,7 +171,7 @@ public class MainWindow {
 						@Override
 						public void windowClosed(WindowEvent arg0) 
 						{
-							tblArtikli.setModel(ucitajPodatke("artikli"));
+							tblArtikli.setModel(ucitajPodatke("artikli", null));
 						}
 					});
 					dialog.setVisible(true);
@@ -186,7 +187,7 @@ public class MainWindow {
 				if (tblArtikli.getSelectedRowCount() == 1)
 				{
 					Comm.obrisiRed(tblArtikli.getValueAt(tblArtikli.getSelectedRow(), 0).toString(), "artikal");
-					tblArtikli.setModel(ucitajPodatke("artikli"));
+					tblArtikli.setModel(ucitajPodatke("artikli", null));
 				}
 			}
 		});
@@ -198,16 +199,93 @@ public class MainWindow {
 		tblArtikli = new JTable();
 		tblArtikli.setDefaultEditor(Object.class, null);
 		tblArtikli.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tblArtikli.setModel(ucitajPodatke("artikli"));
+		tblArtikli.setModel(ucitajPodatke("artikli", null));
 		scrollPane_1.setViewportView(tblArtikli);
+		
+		JPanel panel_4 = new JPanel();
+		tabbedPane.addTab("Racuni", null, panel_4, null);
+		panel_4.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel_5 = new JPanel();
+		panel_4.add(panel_5, BorderLayout.EAST);
+		
+		JButton btnORacunu = new JButton("O racunu");
+		btnORacunu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) 
+			{
+				if (tblRacuni.getSelectedRowCount() == 1)
+				{
+					oRacunu dialog = new oRacunu(tblRacuni.getValueAt(tblRacuni.getSelectedRow(), 0).toString());
+					dialog.addWindowListener(new WindowAdapter() 
+					{
+						@Override
+						public void windowClosed(WindowEvent arg0) 
+						{
+							tblRacuni.setModel(ucitajPodatke("racuni", null));
+						}
+					});
+					dialog.setVisible(true);
+				}
+			}
+		});
+		panel_5.setLayout(new BoxLayout(panel_5, BoxLayout.Y_AXIS));
+		
+		JButton btnNoviRacun = new JButton("Novi racun");
+		btnNoviRacun.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) 
+			{
+					oRacunu dialog = new oRacunu("-1");
+					dialog.addWindowListener(new WindowAdapter() 
+					{
+						@Override
+						public void windowClosed(WindowEvent arg0) 
+						{
+							tblRacuni.setModel(ucitajPodatke("racuni", null));
+						}
+					});
+					dialog.setVisible(true);
+			}
+		});
+		panel_5.add(btnNoviRacun);
+		panel_5.add(btnORacunu);
+		
+		JButton btnObrisi_1 = new JButton("Obrisi");
+		btnObrisi_1.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				if (tblRacuni.getSelectedRowCount() == 1)
+				{
+					Comm.obrisiRed(tblRacuni.getValueAt(tblRacuni.getSelectedRow(), 0).toString(), "racun");
+					tblRacuni.setModel(ucitajPodatke("racuni", null));
+				}
+			}
+		});
+		panel_5.add(btnObrisi_1);
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		panel_4.add(scrollPane_2, BorderLayout.CENTER);
+		
+		tblRacuni = new JTable();
+		tblRacuni.setDefaultEditor(Object.class, null);
+		tblRacuni.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tblRacuni.setModel(ucitajPodatke("racuni", null));
+		scrollPane_2.setViewportView(tblRacuni);
 		frame.setLocationRelativeTo(null);
 		
 	}
 
-	public DefaultTableModel ucitajPodatke(String sta)
+	public static DefaultTableModel ucitajPodatke(String sta, String ID)
 	{
 		DefaultTableModel podaci = new DefaultTableModel();
-		Comm.dajPodatke(sta);
+		
+		if (sta.equals("artiSaRacuna"))
+		{
+			Comm.dajArtikleSaRacuna(ID);
+		} else
+		{
+			Comm.dajPodatke(sta);
+		}
 
 		for (int i = 0; i < Comm.naziviKolona.length; i++)
 		{
