@@ -8,6 +8,9 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
+import DB.Comm;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -16,6 +19,8 @@ import javax.swing.BoxLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -74,13 +79,36 @@ public class oRacunu extends JDialog {
 				{
 					public void actionPerformed(ActionEvent e) 
 					{
-						String[] red = {txtID.getText(), txtKol.getText(), "Bla bla"};
-						((DefaultTableModel)tblArtiNaRac.getModel()).addRow(red);
+						Comm.dajArtikal(txtID.getText());
+						if (Comm.sviRedovi.size() == 0)
+						{
+							JOptionPane.showMessageDialog(null, "Artikal sa tim ID ne postoji!", "Greska!", JOptionPane.ERROR_MESSAGE);
+						} else if (Double.parseDouble(Comm.sviRedovi.get(0)[2]) - Double.parseDouble(txtKol.getText()) < 0)
+						{
+							JOptionPane.showMessageDialog(null, "Premalo na lageru!", "Greska!", JOptionPane.ERROR_MESSAGE);
+						} else
+						{
+							String[] red = {Comm.sviRedovi.get(0)[1], txtKol.getText(), String.valueOf((Double.parseDouble(Comm.sviRedovi.get(0)[8]) * Double.parseDouble(txtKol.getText())))};
+							((DefaultTableModel)tblArtiNaRac.getModel()).addRow(red);
+						}
 						txtID.setText(null);
 						txtKol.setText(null);
 					}
 				});
 				panel.add(btnUnesiArtikal);
+			}
+			{
+				JButton btnObrisiArtikal = new JButton("Obrisi artikal");
+				btnObrisiArtikal.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) 
+					{
+						if (tblArtiNaRac.getSelectedColumnCount() == 1)
+						{
+							((DefaultTableModel)tblArtiNaRac.getModel()).removeRow(tblArtiNaRac.getSelectedRow());
+						}
+					}
+				});
+				panel.add(btnObrisiArtikal);
 			}
 		}
 		{
