@@ -75,7 +75,7 @@ CREATE TABLE `artikal` (
 
 LOCK TABLES `artikal` WRITE;
 /*!40000 ALTER TABLE `artikal` DISABLE KEYS */;
-INSERT INTO `artikal` (`ID`, `Naziv`, `Lager`, `Merna jedinica`, `Ulazna cena`, `Marza procenat`, `Porez procenat`) VALUES (4,'Kafa',500,'g',20,35,20),(9,'Test',8,'kom',15,20,25),(10,'Plazam',122,'kom',300,25,17),(11,'Tamo nesto',200,'kom',25,17,15);
+INSERT INTO `artikal` (`ID`, `Naziv`, `Lager`, `Merna jedinica`, `Ulazna cena`, `Marza procenat`, `Porez procenat`) VALUES (4,'Kafa',190,'g',20,35,20),(9,'Test',2,'kom',15,20,25),(10,'Plazam',117,'kom',300,25,17),(11,'Tamo nesto',180,'kom',25,17,15);
 /*!40000 ALTER TABLE `artikal` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -144,7 +144,7 @@ CREATE TABLE `racun` (
   PRIMARY KEY (`ID`),
   KEY `PravnoLice_idx` (`Lice`),
   CONSTRAINT `PravnoLice` FOREIGN KEY (`Lice`) REFERENCES `lice` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -153,7 +153,7 @@ CREATE TABLE `racun` (
 
 LOCK TABLES `racun` WRITE;
 /*!40000 ALTER TABLE `racun` DISABLE KEYS */;
-INSERT INTO `racun` VALUES (3,'2011-01-01 00:00:00',NULL,NULL,6636.15),(5,'2019-04-02 00:00:00',NULL,NULL,144.9),(7,'1900-05-05 00:00:00',NULL,NULL,1496.25);
+INSERT INTO `racun` VALUES (3,'2011-01-01 00:00:00',NULL,NULL,6636.15),(7,'1900-05-05 00:00:00',NULL,NULL,1496.25),(11,'2019-02-14 10:35:08',NULL,NULL,6480),(12,'2019-02-14 11:05:42',NULL,NULL,1620),(14,'2019-02-14 11:07:30',NULL,NULL,4486.5),(15,'2019-02-14 11:08:02',NULL,NULL,162),(16,'2019-02-14 11:08:19',NULL,NULL,112.5),(18,'2019-02-14 11:26:07',NULL,NULL,184.5);
 /*!40000 ALTER TABLE `racun` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -181,7 +181,7 @@ CREATE TABLE `racun_artikal` (
 
 LOCK TABLES `racun_artikal` WRITE;
 /*!40000 ALTER TABLE `racun_artikal` DISABLE KEYS */;
-INSERT INTO `racun_artikal` VALUES (3,4,1),(3,9,1),(3,10,15),(5,4,1),(5,9,5),(7,9,8),(7,10,3);
+INSERT INTO `racun_artikal` VALUES (3,4,1),(3,9,1),(3,10,15),(7,9,8),(7,10,3),(11,4,200),(12,4,50),(14,4,50),(14,10,5),(14,11,20),(15,4,5),(16,9,5),(18,4,5),(18,9,1);
 /*!40000 ALTER TABLE `racun_artikal` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -538,6 +538,52 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `unosArtiklaSaRacuna` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `unosArtiklaSaRacuna`(IN IDarti VARCHAR(45), IN kol VARCHAR(45))
+BEGIN
+	SELECT ID FROM pos.racun
+	ORDER BY `Datum izdavanja` DESC
+	LIMIT 1 
+    INTO @IDracuna;
+    
+    INSERT INTO racun_artikal
+    VALUES(@IDracuna, IDarti, kol);
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `unosRacuna` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `unosRacuna`()
+BEGIN
+	INSERT INTO racun
+    (`Datum izdavanja`)
+    VALUES (TIME(NOW()));
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Final view structure for view `licesaadresom`
@@ -566,4 +612,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-02-13 11:44:47
+-- Dump completed on 2019-02-14 11:34:00

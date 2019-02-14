@@ -241,6 +241,7 @@ public class MainWindow {
 						public void windowClosed(WindowEvent arg0) 
 						{
 							tblRacuni.setModel(ucitajPodatke("racuni", null));
+							tblArtikli.setModel(ucitajPodatke("artikli", null));
 						}
 					});
 					dialog.setVisible(true);

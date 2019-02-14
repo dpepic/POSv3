@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.Vector;
 
 public class Comm {
@@ -191,6 +192,32 @@ public class Comm {
 		}
 	}
 
+	public static void unosRacuna()
+	{
+		ozbiljnaKonekcija();
+		try
+		{
+			kom.executeQuery(String.format("CALL unosRacuna()"));
+			nasaKonekcija.close();
+		} catch (SQLException joj)
+		{
+			joj.printStackTrace();
+		}
+	}
+	
+	public static void unosArtiklaSaRacuna(String IDarti, String kol)
+	{
+		ozbiljnaKonekcija();
+		try
+		{
+			kom.executeQuery(String.format("CALL unosArtiklaSaRacuna('%s', '%s')", IDarti, kol));
+			nasaKonekcija.close();
+		} catch (SQLException joj)
+		{
+			joj.printStackTrace();
+		}
+	}
+	
 	public static void izmenaArtikla(String PK, String naziv, String lager, String ulazna,
 			String marza, String porez)
 	{

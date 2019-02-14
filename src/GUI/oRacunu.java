@@ -22,7 +22,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
+import java.util.Vector;
 import java.awt.event.ActionEvent;
+import javax.swing.SwingConstants;
+
 
 public class oRacunu extends JDialog {
 
@@ -30,9 +33,11 @@ public class oRacunu extends JDialog {
 	private JTable tblArtiNaRac;
 	private JTextField txtID;
 	private JTextField txtKol;
+	JLabel lblTotal = new JLabel("Total:");
+	private Vector<String> PKvektor = new Vector<String>(); 
 
 	public oRacunu(String PK) {
-		
+
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -73,60 +78,123 @@ public class oRacunu extends JDialog {
 				panel.add(txtKol);
 				txtKol.setColumns(5);
 			}
+
+			JButton btnUnesiArtikal = new JButton("Unesi artikal");
+			btnUnesiArtikal.addActionListener(new ActionListener() 
 			{
-				JButton btnUnesiArtikal = new JButton("Unesi artikal");
-				btnUnesiArtikal.addActionListener(new ActionListener() 
+				public void actionPerformed(ActionEvent e) 
 				{
-					public void actionPerformed(ActionEvent e) 
+					Comm.dajArtikal(txtID.getText());
+					if (Comm.sviRedovi.size() == 0)
 					{
-						Comm.dajArtikal(txtID.getText());
-						if (Comm.sviRedovi.size() == 0)
+						JOptionPane.showMessageDialog(null, "Artikal sa tim ID ne postoji!", "Greska!", JOptionPane.ERROR_MESSAGE);
+					} else if (Double.parseDouble(Comm.sviRedovi.get(0)[2]) - Double.parseDouble(txtKol.getText()) < 0)
+					{
+						JOptionPane.showMessageDialog(null, "Premalo na lageru!", "Greska!", JOptionPane.ERROR_MESSAGE);
+					} else
+					{
+						for (int i = 0; i < tblArtiNaRac.getRowCount(); i++)
 						{
-							JOptionPane.showMessageDialog(null, "Artikal sa tim ID ne postoji!", "Greska!", JOptionPane.ERROR_MESSAGE);
-						} else if (Double.parseDouble(Comm.sviRedovi.get(0)[2]) - Double.parseDouble(txtKol.getText()) < 0)
-						{
-							JOptionPane.showMessageDialog(null, "Premalo na lageru!", "Greska!", JOptionPane.ERROR_MESSAGE);
-						} else
-						{
-							String[] red = {Comm.sviRedovi.get(0)[1], txtKol.getText(), String.valueOf((Double.parseDouble(Comm.sviRedovi.get(0)[8]) * Double.parseDouble(txtKol.getText())))};
-							((DefaultTableModel)tblArtiNaRac.getModel()).addRow(red);
+							if (Comm.sviRedovi.get(0)[1].equals(tblArtiNaRac.getValueAt(i, 0)))
+							{
+								((DefaultTableModel)tblArtiNaRac.getModel()).removeRow(i);
+								PKvektor.remove(i);
+							}
 						}
-						txtID.setText(null);
-						txtKol.setText(null);
+						String[] red = {Comm.sviRedovi.get(0)[1], txtKol.getText(), String.valueOf((Double.parseDouble(Comm.sviRedovi.get(0)[8]) * Double.parseDouble(txtKol.getText())))};
+						PKvektor.add(txtID.getText());
+						((DefaultTableModel)tblArtiNaRac.getModel()).addRow(red);
+						izracunajTotal();
 					}
-				});
-				panel.add(btnUnesiArtikal);
-			}
+					txtID.setText(null);
+					txtKol.setText(null);
+				}
+			});
+			panel.add(btnUnesiArtikal);
+
+
+			JButton btnObrisiArtikal = new JButton("Obrisi artikal");
+			btnObrisiArtikal.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) 
+				{
+					if (tblArtiNaRac.getSelectedColumnCount() == 1)
+					{
+						((DefaultTableModel)tblArtiNaRac.getModel()).removeRow(tblArtiNaRac.getSelectedRow());
+					}
+				}
+			});
+			panel.add(btnObrisiArtikal);
+
+			if (PK != "-1")
 			{
-				JButton btnObrisiArtikal = new JButton("Obrisi artikal");
-				btnObrisiArtikal.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) 
-					{
-						if (tblArtiNaRac.getSelectedColumnCount() == 1)
-						{
-							((DefaultTableModel)tblArtiNaRac.getModel()).removeRow(tblArtiNaRac.getSelectedRow());
-						}
-					}
-				});
-				panel.add(btnObrisiArtikal);
+				txtID.setEnabled(false);
+				txtKol.setEnabled(false);
+				btnObrisiArtikal.setEnabled(false);
+				btnUnesiArtikal.setEnabled(false);
+				izracunajTotal();
 			}
+
 		}
+
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
 				JButton okButton = new JButton("OK");
+				okButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) 
+					{
+						if (PK == "-1")
+						{
+							if (tblArtiNaRac.getRowCount() > 0)
+							{
+								Comm.unosRacuna();
+								for (int i = 0; i < tblArtiNaRac.getRowCount(); i++)
+								{
+									Comm.unosArtiklaSaRacuna(PKvektor.get(i), tblArtiNaRac.getValueAt(i, 1).toString());
+								}
+								dispose();
+							} else
+							{
+								JOptionPane.showMessageDialog(null, "Molim unesite barem jedan artikal.", "Greska!", JOptionPane.ERROR_MESSAGE);
+							}
+						} else
+						{
+							dispose();
+						}
+					}
+				});
+				{
+					
+					buttonPane.add(lblTotal, BorderLayout.WEST);
+				}
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
 			}
 			{
 				JButton cancelButton = new JButton("Cancel");
+				cancelButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) 
+					{
+						dispose();
+					}
+				});
 				cancelButton.setActionCommand("Cancel");
 				buttonPane.add(cancelButton);
 			}
+		}	
+	}
+	
+	public void izracunajTotal()
+	{
+		Double total = 0.0;
+		for (int i = 0; i < tblArtiNaRac.getRowCount(); i++)
+		{
+			total += Double.parseDouble(tblArtiNaRac.getValueAt(i, 2).toString());
 		}
+		lblTotal.setText("Total: " + total);
 	}
 
 }
