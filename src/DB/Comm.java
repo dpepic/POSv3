@@ -12,7 +12,7 @@ public class Comm {
 
 	public static String[] naziviKolona;
 	public static Vector<String[]> sviRedovi = new Vector<String[]>();
-	//public static Vector<String[]> PK = new Vector<String[]>();
+	public static Vector<String> PK = new Vector<String>();
 
 	private static Connection nasaKonekcija  = null;
 	private static Statement kom = null;
@@ -35,37 +35,21 @@ public class Comm {
 	{
 		ozbiljnaKonekcija();
 		sviRedovi.clear();
+		PK.clear();
 		try
 		{	
 			ResultSet rs = kom.executeQuery(String.format("CALL dajTabelu('%s')", tip));	
 			int brojKolona = dajNaziveKolona(rs);
 
-			DatabaseMetaData dbmd = nasaKonekcija.getMetaData();
-			ResultSet primarni = dbmd.getPrimaryKeys(null, rs.getMetaData().getSchemaName(1), rs.getMetaData().getTableName(1));
-
-			Vector<String> PKkolone = new Vector<String>();
-			while (primarni.next())
-			{
-				if (!PKkolone.contains(primarni.getString("COLUMN_NAME")))
-				{
-					PKkolone.add(primarni.getString("COLUMN_NAME"));
-				}
-			}
-
 			while (rs.next())
 			{     
 				String[] red = new String[brojKolona];
-				//String[] PKzaRed = new String[PKkolone.size()];
-				for (int i = 1; i <= brojKolona; i++)
+				PK.add(rs.getString(1));
+				for (int i = 2; i <= brojKolona; i++)
 				{
-					red[i-1] = rs.getString(i);
-					//if (PKkolone.contains(rs.getMetaData().getColumnName(i)))
-					//{
-					//	PKzaRed[PKkolone.indexOf(rs.getMetaData().getColumnName(i))] = rs.getString(i);
-					//}
-				}
+					red[i-2] = rs.getString(i);
 
-				//PK.add(PKzaRed);
+				}
 				sviRedovi.add(red);
 			}		
 			nasaKonekcija.close();
@@ -93,19 +77,21 @@ public class Comm {
 	public static void dajArtikleSaRacuna(String PK)
 	{
 		sviRedovi.clear();
+		Comm.PK.clear();
 		ozbiljnaKonekcija();
-		
+
 		try
 		{
 			ResultSet rs = kom.executeQuery(String.format("CALL dajArtikleSaRacuna('%s')", PK));
 			int brojKolona = dajNaziveKolona(rs);
-			
+
 			while (rs.next())
 			{
 				String[] red = new String[brojKolona];
-				for (int i = 0; i < brojKolona; i++)
+				Comm.PK.add(rs.getString(1));
+				for (int i = 2; i <= brojKolona; i++)
 				{
-					red[i] = rs.getString(i+1);
+					red[i - 2] = rs.getString(i);
 				}
 				sviRedovi.add(red);
 			}
@@ -119,7 +105,7 @@ public class Comm {
 	{
 		sviRedovi.clear();
 		ozbiljnaKonekcija();
-		
+
 		try
 		{
 			ResultSet rs = kom.executeQuery(String.format("CALL dajArtikal('%s')", PK));
@@ -147,10 +133,10 @@ public class Comm {
 		try 
 		{
 			ResultSet rs = kom.executeQuery(String.format("CALL dajFirmu('%s')", PK));
-			int brojKolona = dajNaziveKolona(rs);
+			int brojKolona = dajNaziveKolona(rs);  
 			if (rs.next())
 			{
-				String[] red = new String[brojKolona];
+				String[] red = new String[brojKolona]; 
 				for (int i = 0; i < brojKolona; i++)
 				{
 					red[i] = rs.getString(i+1);
@@ -176,6 +162,20 @@ public class Comm {
 		}
 	}
 
+	public static void izmenaAdrese(String PK, String pbr, String grad,
+			String ulica, String broj)
+	{
+		ozbiljnaKonekcija();
+		try
+		{
+			kom.executeQuery(String.format("CALL izmenaAdrese('%s', '%s', '%s', '%s', '%s')", PK, pbr, grad, ulica, broj));
+			nasaKonekcija.close();
+		} catch (SQLException joj)
+		{
+			joj.printStackTrace();
+		}
+	}
+	
 	public static void izmenaFirme(String PK, String JIB, String PIB,
 			String naziv, String tel, String fax,
 			String mail)
@@ -204,7 +204,7 @@ public class Comm {
 			joj.printStackTrace();
 		}
 	}
-	
+
 	public static void unosArtiklaSaRacuna(String IDarti, String kol)
 	{
 		ozbiljnaKonekcija();
@@ -217,7 +217,7 @@ public class Comm {
 			joj.printStackTrace();
 		}
 	}
-	
+
 	public static void izmenaArtikla(String PK, String naziv, String lager, String ulazna,
 			String marza, String porez)
 	{
@@ -236,10 +236,10 @@ public class Comm {
 	public static int dajNaziveKolona(ResultSet rs) throws SQLException
 	{
 		int brojKolona = rs.getMetaData().getColumnCount();
-		naziviKolona = new String[brojKolona];
-		for (int i = 1; i <= brojKolona; i++)
+		naziviKolona = new String[brojKolona - 1];
+		for (int i = 2; i <= brojKolona; i++)
 		{
-			naziviKolona[i-1] = rs.getMetaData().getColumnName(i);
+			naziviKolona[i-2] = rs.getMetaData().getColumnName(i);
 		}
 		return brojKolona;
 	}

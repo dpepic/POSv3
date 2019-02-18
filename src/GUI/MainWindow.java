@@ -76,7 +76,8 @@ public class MainWindow {
 			{
 				if (tblLica.getSelectedRowCount() == 1)
 				{
-					oFirmi dialog = new oFirmi(tblLica.getValueAt(tblLica.getSelectedRow(), 0).toString());
+					ucitajPodatke("lica", null); 
+					oFirmi dialog = new oFirmi(Comm.PK.get(tblLica.getSelectedRow()));
 					dialog.addWindowListener(new WindowAdapter() 
 					{
 						@Override
@@ -116,7 +117,8 @@ public class MainWindow {
 			{
 				if (tblLica.getSelectedRowCount() == 1)
 				{
-					Comm.obrisiRed(tblLica.getValueAt(tblLica.getSelectedRow(), 0).toString(), "lice");
+					ucitajPodatke("lica", null);
+					Comm.obrisiRed(Comm.PK.get(tblLica.getSelectedRow()), "lice");
 					tblLica.setModel(ucitajPodatke("lica", null));
 				}
 			}
@@ -165,7 +167,8 @@ public class MainWindow {
 			{
 				if (tblArtikli.getSelectedRowCount() == 1)
 				{
-					oArtiklu dialog = new oArtiklu(tblArtikli.getValueAt(tblArtikli.getSelectedRow(), 0).toString());
+					ucitajPodatke("artikli", null); 
+					oArtiklu dialog = new oArtiklu(Comm.PK.get(tblArtikli.getSelectedRow()));
 					dialog.addWindowListener(new WindowAdapter() 
 					{
 						@Override
@@ -186,7 +189,8 @@ public class MainWindow {
 			{
 				if (tblArtikli.getSelectedRowCount() == 1)
 				{
-					Comm.obrisiRed(tblArtikli.getValueAt(tblArtikli.getSelectedRow(), 0).toString(), "artikal");
+					ucitajPodatke("artikli", null);
+					Comm.obrisiRed(Comm.PK.get(tblArtikli.getSelectedRow()), "artikal");
 					tblArtikli.setModel(ucitajPodatke("artikli", null));
 				}
 			}
@@ -215,7 +219,8 @@ public class MainWindow {
 			{
 				if (tblRacuni.getSelectedRowCount() == 1)
 				{
-					oRacunu dialog = new oRacunu(tblRacuni.getValueAt(tblRacuni.getSelectedRow(), 0).toString());
+					ucitajPodatke("racuni", null); 
+					oRacunu dialog = new oRacunu(Comm.PK.get(tblRacuni.getSelectedRow()));
 					dialog.addWindowListener(new WindowAdapter() 
 					{
 						@Override
@@ -257,7 +262,8 @@ public class MainWindow {
 			{
 				if (tblRacuni.getSelectedRowCount() == 1)
 				{
-					Comm.obrisiRed(tblRacuni.getValueAt(tblRacuni.getSelectedRow(), 0).toString(), "racun");
+					ucitajPodatke("racuni", null);
+					Comm.obrisiRed(Comm.PK.get(tblRacuni.getSelectedRow()), "racun");
 					tblRacuni.setModel(ucitajPodatke("racuni", null));
 				}
 			}
