@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 public class oFirmi extends JDialog {
 
@@ -28,9 +29,40 @@ public class oFirmi extends JDialog {
 	private JTextField txtPosta;
 	private JTextField txtUlica;
 	private JTextField txtBroj;
+	private JButton btnAdrNazad = new JButton("<");
+	private JButton btnAdrNapred = new JButton(">");
+	private int indeksAdr = 1;
+	private JButton btnNovaAdresa;
 
 	public oFirmi(String PK) {
 		Comm.dajFirmu(PK); 
+		btnAdrNapred.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				if (Comm.sviRedovi.size()-1 > indeksAdr)
+				{
+					indeksAdr++;
+				} else
+				{
+					indeksAdr = 1;
+				}
+				ucitajAdresu(indeksAdr);
+			}
+		});
+		btnAdrNapred.setEnabled(false);
+		btnAdrNazad.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				if (indeksAdr == 1)
+					indeksAdr = Comm.sviRedovi.size() - 1;
+				else
+					indeksAdr--;
+				ucitajAdresu(indeksAdr);
+			}
+		});
+		btnAdrNazad.setEnabled(false);
 		setResizable(false);
 		setBounds(100, 100, 450, 308);
 		getContentPane().setLayout(new BorderLayout());
@@ -72,24 +104,35 @@ public class oFirmi extends JDialog {
 			txtMail.setBounds(54, 167, 86, 20);
 			contentPanel.add(txtMail);
 			txtMail.setColumns(10);
+
+			txtPosta = new JTextField();
+			txtGrad = new JTextField();
+			txtUlica = new JTextField();
+			txtBroj = new JTextField();
 		}
-			if (!PK.equals("-1"))
-			{
-				
-				txtJIB.setText(Comm.sviRedovi.get(0)[1]);
-				txtPIB.setText(Comm.sviRedovi.get(0)[2]);
-				txtNaziv.setText(Comm.sviRedovi.get(0)[3]);
-				txtTel.setText(Comm.sviRedovi.get(0)[4]);
-				txtFax.setText(Comm.sviRedovi.get(0)[5]);
-				txtMail.setText(Comm.sviRedovi.get(0)[6]);
-			}
+		if (!PK.equals("-1"))
 		{
+			txtJIB.setText(Comm.sviRedovi.get(0)[1]);
+			txtPIB.setText(Comm.sviRedovi.get(0)[2]);
+			txtNaziv.setText(Comm.sviRedovi.get(0)[3]);
+			txtTel.setText(Comm.sviRedovi.get(0)[4]);
+			txtFax.setText(Comm.sviRedovi.get(0)[5]);
+			txtMail.setText(Comm.sviRedovi.get(0)[6]);
+		} else
+		{
+			Comm.sviRedovi.clear();
+		}
+		{
+
 			if (Comm.sviRedovi.size() > 1)
 			{
-				txtPosta = new JTextField(Comm.sviRedovi.get(1)[2]);
-				txtGrad = new JTextField(Comm.sviRedovi.get(1)[3]);
-				txtUlica = new JTextField(Comm.sviRedovi.get(1)[4]);
-				txtBroj = new JTextField(Comm.sviRedovi.get(1)[5]);
+				ucitajAdresu(indeksAdr);
+
+				if (Comm.sviRedovi.size() > 2)
+				{
+					btnAdrNapred.setEnabled(true);
+					btnAdrNazad.setEnabled(true);
+				} 
 			} else
 			{
 				txtPosta = new JTextField();
@@ -102,39 +145,71 @@ public class oFirmi extends JDialog {
 			txtGrad.setColumns(10);
 		}
 		{
-			
+
 			txtPosta.setBounds(197, 73, 86, 20);
 			contentPanel.add(txtPosta);
 			txtPosta.setColumns(10);
 		}
 		{
-			
+
 			txtUlica.setBounds(296, 104, 86, 20);
 			contentPanel.add(txtUlica);
 			txtUlica.setColumns(10);
 		}
 		{
-			
+
 			txtBroj.setBounds(296, 135, 86, 20);
 			contentPanel.add(txtBroj);
 			txtBroj.setColumns(10);
 		}
-		
+
 		JLabel lblPostanski = new JLabel("Postanski");
 		lblPostanski.setBounds(197, 56, 46, 14);
 		contentPanel.add(lblPostanski);
-		
+
 		JLabel lblGrad = new JLabel("Grad");
 		lblGrad.setBounds(306, 56, 46, 14);
 		contentPanel.add(lblGrad);
-		
+
 		JLabel lblNewLabel = new JLabel("Ulica");
 		lblNewLabel.setBounds(237, 107, 46, 14);
 		contentPanel.add(lblNewLabel);
-		
+
 		JLabel lblNewLabel_1 = new JLabel("Broj");
 		lblNewLabel_1.setBounds(237, 138, 46, 14);
 		contentPanel.add(lblNewLabel_1);
+
+
+
+		btnAdrNazad.setBounds(178, 22, 41, 23);
+		contentPanel.add(btnAdrNazad);
+
+
+
+		btnAdrNapred.setBounds(226, 22, 41, 23);
+		contentPanel.add(btnAdrNapred);
+		
+		btnNovaAdresa = new JButton("Nova adresa");
+		btnNovaAdresa.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				
+				for (String[] red: Comm.sviRedovi)
+				{
+					if (txtPosta.getText() == red[2] && txtGrad.getText() == red[3] && txtUlica.getText() == red[4] && txtBroj.getText() == red[5])
+					{
+						JOptionPane.showMessageDialog(contentPanel, "Adresa vec postoji!", "Greska!", JOptionPane.ERROR_MESSAGE);
+						System.out.println("Hej! ");
+						return;
+					}
+				}
+				Comm.izmenaAdrese("-1", txtPosta.getText(), txtGrad.getText(), txtUlica.getText(), txtBroj.getText(), Comm.sviRedovi.get(0)[0]);
+				dispose();
+			}
+		});
+		btnNovaAdresa.setBounds(277, 22, 105, 23);
+		contentPanel.add(btnNovaAdresa);
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -145,12 +220,18 @@ public class oFirmi extends JDialog {
 					public void actionPerformed(ActionEvent arg0) 
 					{
 						Comm.izmenaFirme(PK, txtJIB.getText(), txtPIB.getText(), txtNaziv.getText(), txtTel.getText(), 
-								         txtFax.getText(), txtMail.getText());
+								txtFax.getText(), txtMail.getText());
 						if (Comm.sviRedovi.size() > 1)
 						{
-							Comm.izmenaAdrese(Comm.sviRedovi.get(1)[0], txtPosta.getText(), txtGrad.getText(), txtUlica.getText(), txtBroj.getText());
+							Comm.izmenaAdrese(Comm.sviRedovi.get(indeksAdr)[0], txtPosta.getText(), txtGrad.getText(), txtUlica.getText(), txtBroj.getText(), null);
+						} else if (Comm.sviRedovi.size() == 1 && txtPosta.getText() != "" && txtGrad.getText() != "" && txtUlica.getText() != "" && txtBroj.getText() != "")
+						{
+							Comm.izmenaAdrese("-1", txtPosta.getText(), txtGrad.getText(), txtUlica.getText(), txtBroj.getText(), Comm.sviRedovi.get(0)[0]);
+						} else if (txtPosta.getText() != "" && txtGrad.getText() != "" && txtUlica.getText() != "" && txtBroj.getText() != "")
+						{
+							Comm.dajFirmu("-1");
+							Comm.izmenaAdrese("-1", txtPosta.getText(), txtGrad.getText(), txtUlica.getText(), txtBroj.getText(), Comm.sviRedovi.get(0)[0]);
 						}
-						
 						dispose();
 					}
 				});
@@ -170,5 +251,13 @@ public class oFirmi extends JDialog {
 				buttonPane.add(cancelButton);
 			}
 		}
+	}
+
+	public void ucitajAdresu(int indeks)
+	{
+		txtPosta.setText(Comm.sviRedovi.get(indeks)[2]); 
+		txtGrad.setText(Comm.sviRedovi.get(indeks)[3]);
+		txtUlica.setText(Comm.sviRedovi.get(indeks)[4]); 
+		txtBroj.setText(Comm.sviRedovi.get(indeks)[5]);
 	}
 }

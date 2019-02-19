@@ -163,12 +163,12 @@ public class Comm {
 	}
 
 	public static void izmenaAdrese(String PK, String pbr, String grad,
-			String ulica, String broj)
+			String ulica, String broj, String PKlica)
 	{
 		ozbiljnaKonekcija();
 		try
 		{
-			kom.executeQuery(String.format("CALL izmenaAdrese('%s', '%s', '%s', '%s', '%s')", PK, pbr, grad, ulica, broj));
+			kom.executeQuery(String.format("CALL izmenaAdrese('%s', '%s', '%s', '%s', '%s', '%s')", PK, pbr, grad, ulica, broj, PKlica));
 			nasaKonekcija.close();
 		} catch (SQLException joj)
 		{

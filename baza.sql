@@ -35,7 +35,7 @@ CREATE TABLE `adresa` (
   PRIMARY KEY (`ID`),
   KEY `Pravno lice FK_idx` (`ID pravnog lica`),
   CONSTRAINT `Pravno lice FK` FOREIGN KEY (`ID pravnog lica`) REFERENCES `lice` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,7 +44,7 @@ CREATE TABLE `adresa` (
 
 LOCK TABLES `adresa` WRITE;
 /*!40000 ALTER TABLE `adresa` DISABLE KEYS */;
-INSERT INTO `adresa` (`ID`, `ID pravnog lica`, `Postanski broj`, `Grad`, `Ulica`, `Broj`) VALUES (7,125,'23300','Ki','Dositejeva','1256');
+INSERT INTO `adresa` (`ID`, `ID pravnog lica`, `Postanski broj`, `Grad`, `Ulica`, `Broj`) VALUES (7,125,'23300','Kikinda','Dositejeva','1256'),(8,127,'3456','Neki grad','Sa nekom ulicom','5'),(9,128,'234','Asd','ed','2'),(16,128,'23000','Kikinda','Dostijeva','124'),(17,136,'123','rrr','fdd','34'),(18,138,'330000','Grad','ulica','33'),(19,128,'223344','Neki tamo','123','321'),(47,128,'234234','sdfsdf','43t4','sdf'),(48,128,'11222','sdfsdfAsds','234234','sdf'),(49,128,'234234','sdfsdf','43t4','sdf'),(50,128,'234','Asd','ed','2'),(51,128,'234','Asd','ed','2'),(52,128,'23400','Asd','ed','2'),(53,128,'23400o','Asd','ed','2');
 /*!40000 ALTER TABLE `adresa` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -99,7 +99,7 @@ CREATE TABLE `lice` (
   UNIQUE KEY `JIB_UNIQUE` (`JIB`),
   UNIQUE KEY `PIB_UNIQUE` (`PIB`),
   UNIQUE KEY `Naziv_UNIQUE` (`Naziv`)
-) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=139 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -108,7 +108,7 @@ CREATE TABLE `lice` (
 
 LOCK TABLES `lice` WRITE;
 /*!40000 ALTER TABLE `lice` DISABLE KEYS */;
-INSERT INTO `lice` VALUES (125,'112233','332211','Osma ','12345','123456','asd@asd.asd'),(127,'667788','887766','Proba unosa','4455','5544','qwe@qwe.qwe'),(128,'45677','776654','Nova neka tamo','123','15235','asd@asd.asdasdasd');
+INSERT INTO `lice` VALUES (125,'112233','332211','Osma ','12345','123456','asd@asd.asd'),(127,'667788','887766','Proba unosa','4455','5544','qwe@qwe.qwe'),(128,'45677','776654','Nova neka tamo','123','15235','asd@asd.asdasdasd'),(136,'qwe','ewq','asd','asd','asd','asd'),(137,'88776655','Nesto tamo','Polje','wfr','wef','33'),(138,'ttyy','yytt','Ova mora da radi','Mozda','Ako','Ponekad');
 /*!40000 ALTER TABLE `lice` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -375,8 +375,14 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `dajFirmu`(IN PK VARCHAR(45))
 BEGIN
-	SELECT * FROM lice
-    WHERE ID = PK;
+	IF (PK >= 0) THEN
+		SELECT * FROM lice
+		WHERE ID = PK;
+	ELSE
+		SELECT * FROM lice
+        ORDER BY ID DESC
+        LIMIT 1;
+	END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -397,7 +403,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `dajTabelu`(IN tip VARCHAR(45))
 BEGIN
 		CASE (tip)
 			WHEN "lica" THEN
-				SELECT * FROM licesaadresom;
+				SELECT * FROM licesaadresom
+                GROUP BY ID;
 			WHEN "artikli" THEN
 				SELECT ID, ID, Naziv, Lager, `Merna jedinica`,
                 `Ulazna cena`, `Marza procenat`, `Cena sa marzom`, `Porez procenat`, `Izlazna cena` FROM artikal;
@@ -420,13 +427,19 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `izmenaAdrese`(IN PKad VARCHAR(45), IN br VARCHAR(45), IN grad VARCHAR(45),
-								 IN ulica VARCHAR(45), IN broj VARCHAR(45))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `izmenaAdrese`(IN PKad VARCHAR(45), IN postanski VARCHAR(45), IN grad VARCHAR(45),
+								 IN ulica VARCHAR(45), IN broj VARCHAR(45), IN PKlica VARCHAR(45))
 BEGIN
-	UPDATE adresa
-    SET `Postanski broj` = br, `Grad` = grad,
-        `Ulica` = ulica, `Broj` = broj
-	WHERE ID = PKad;
+	IF (PKad >= 0) THEN
+		UPDATE adresa
+		SET `Postanski broj` = postanski, `Grad` = grad,
+			`Ulica` = ulica, `Broj` = broj
+		WHERE ID = PKad;
+	ELSE 
+		INSERT INTO adresa
+        (`ID pravnog lica`, `Postanski broj`, `Grad`, `Ulica`, `Broj`)
+        VALUES (PKlica, postanski, grad, ulica, broj);
+	END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -637,4 +650,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-02-18 11:46:38
+-- Dump completed on 2019-02-19 11:43:48
