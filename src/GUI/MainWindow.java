@@ -124,6 +124,25 @@ public class MainWindow {
 			}
 		});
 		panel_2.add(btnObrisi);
+		
+		JButton btnPrikaziRacune = new JButton("Prikazi racune");
+		btnPrikaziRacune.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				if (tblLica.getSelectedRowCount() == 1)
+				{
+					ucitajPodatke("lica", null);
+					Comm.dajRacunePoFirmi(Comm.PK.get(tblLica.getSelectedRow()));
+					for (String[] red: Comm.sviRedovi)
+					{
+						System.out.println(String.format("Firma %s ima racun %s",
+								          tblLica.getValueAt(tblLica.getSelectedRow(), 0), red[0]));
+					}
+				}
+			}
+		});
+		panel_2.add(btnPrikaziRacune);
 
 		JScrollPane scrollPane = new JScrollPane();
 		panel.add(scrollPane, BorderLayout.CENTER);

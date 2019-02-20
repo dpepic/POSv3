@@ -125,6 +125,26 @@ public class Comm {
 			joj.printStackTrace();
 		}
 	}
+	
+	public static void dajNaziveFirmi()
+	{
+		sviRedovi.clear();
+		PK.clear();
+		ozbiljnaKonekcija();
+		try
+		{
+			ResultSet rs = kom.executeQuery("CALL dajNaziveFirmi()");
+			
+			while (rs.next())
+			{
+				PK.add(rs.getString(1));
+				sviRedovi.add(new String[]{rs.getString(2)});
+			}
+		} catch (SQLException joj)
+		{
+			joj.printStackTrace();
+		}
+	}
 	public static void dajFirmu(String PK)
 	{
 		sviRedovi.clear();
@@ -192,12 +212,12 @@ public class Comm {
 		}
 	}
 
-	public static void unosRacuna()
+	public static void unosRacuna(String PK, String valuta)
 	{
 		ozbiljnaKonekcija();
 		try
 		{
-			kom.executeQuery(String.format("CALL unosRacuna()"));
+			kom.executeQuery(String.format("CALL unosRacuna('%s', '%s')", PK, valuta));
 			nasaKonekcija.close();
 		} catch (SQLException joj)
 		{
@@ -205,6 +225,32 @@ public class Comm {
 		}
 	}
 
+	public static void dajRacunePoFirmi(String PK)
+	{
+		sviRedovi.clear();
+		Comm.PK.clear();
+		ozbiljnaKonekcija();
+		
+		try
+		{
+			ResultSet rs = kom.executeQuery(String.format("CALL dajRacunePoFirmi('%s')", PK));
+			int brojKolona = dajNaziveKolona(rs);
+			
+			while (rs.next())
+			{
+				String[] red = new String[brojKolona];
+				for (int i = 0; i < brojKolona; i++)
+				{
+					red[i] = rs.getString(i+1);
+				}
+				sviRedovi.add(red);
+			}
+			nasaKonekcija.close();
+		} catch (SQLException joj)
+		{
+			joj.printStackTrace();
+		}
+	}
 	public static void unosArtiklaSaRacuna(String IDarti, String kol)
 	{
 		ozbiljnaKonekcija();

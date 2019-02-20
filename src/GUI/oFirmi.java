@@ -33,6 +33,7 @@ public class oFirmi extends JDialog {
 	private JButton btnAdrNapred = new JButton(">");
 	private int indeksAdr = 1;
 	private JButton btnNovaAdresa;
+	private JButton btnObrisi;
 
 	public oFirmi(String PK) {
 		Comm.dajFirmu(PK); 
@@ -197,10 +198,10 @@ public class oFirmi extends JDialog {
 				
 				for (String[] red: Comm.sviRedovi)
 				{
-					if (txtPosta.getText() == red[2] && txtGrad.getText() == red[3] && txtUlica.getText() == red[4] && txtBroj.getText() == red[5])
+					    
+					if (txtPosta.getText().equals(red[2]) && txtGrad.getText().equals(red[3]) && txtUlica.getText().equals(red[4]) && txtBroj.getText().equals(red[5]))
 					{
 						JOptionPane.showMessageDialog(contentPanel, "Adresa vec postoji!", "Greska!", JOptionPane.ERROR_MESSAGE);
-						System.out.println("Hej! ");
 						return;
 					}
 				}
@@ -210,6 +211,29 @@ public class oFirmi extends JDialog {
 		});
 		btnNovaAdresa.setBounds(277, 22, 105, 23);
 		contentPanel.add(btnNovaAdresa);
+		
+		btnObrisi = new JButton("Obrisi");
+		btnObrisi.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				Comm.obrisiRed(Comm.sviRedovi.get(indeksAdr)[0], "adresa");
+				Comm.sviRedovi.remove(indeksAdr);
+				if (Comm.sviRedovi.size() < 2)
+				{
+					txtPosta.setText("");
+					txtGrad.setText("");
+					txtUlica.setText("");
+					txtBroj.setText("");
+				} else 
+				{
+					indeksAdr = 1;
+					ucitajAdresu(indeksAdr);
+				}
+			}
+		});
+		btnObrisi.setBounds(296, 167, 89, 23);
+		contentPanel.add(btnObrisi);
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));

@@ -25,6 +25,8 @@ import java.awt.event.ActionListener;
 import java.util.Vector;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
 
 
 public class oRacunu extends JDialog {
@@ -35,7 +37,9 @@ public class oRacunu extends JDialog {
 	private JTextField txtKol;
 	JLabel lblTotal = new JLabel("Total:");
 	private Vector<String> PKvektor = new Vector<String>(); 
-
+	private JTextField txtValuta;
+	private JComboBox cmbFirme = new JComboBox();
+	
 	public oRacunu(String PK) {
 
 		setBounds(100, 100, 450, 300);
@@ -124,13 +128,37 @@ public class oRacunu extends JDialog {
 				}
 			});
 			panel.add(btnObrisiArtikal);
+			{
+				
+				cmbFirme.setMaximumSize(new Dimension(32767, 20));
+				cmbFirme.setModel(new DefaultComboBoxModel(new String[] {"Fizicko lice"}));
+				Comm.dajNaziveFirmi();
+				for (String[] red: Comm.sviRedovi)
+				{
+					cmbFirme.addItem(red[0]);
+				}
+				panel.add(cmbFirme);
+			}
+			{
+				JLabel lblValutaZa = new JLabel("Valuta za:");
+				panel.add(lblValutaZa);
+			}
+			{
+				txtValuta = new JTextField();
+				txtValuta.setText("1");
+				txtValuta.setMaximumSize(new Dimension(100, 15));
+				panel.add(txtValuta);
+				txtValuta.setColumns(10);
+			}
 
 			if (PK != "-1")
 			{
 				txtID.setEnabled(false);
-				txtKol.setEnabled(false);
+				txtKol.setEnabled(false);				
 				btnObrisiArtikal.setEnabled(false);
 				btnUnesiArtikal.setEnabled(false);
+				cmbFirme.setEnabled(false);
+				txtValuta.setEnabled(false);
 				izracunajTotal();
 			}
 
@@ -149,7 +177,13 @@ public class oRacunu extends JDialog {
 						{
 							if (tblArtiNaRac.getRowCount() > 0)
 							{
-								Comm.unosRacuna();
+								if (cmbFirme.getSelectedItem().toString().equals("Fizicko lice"))
+								{
+									Comm.unosRacuna("-1", null);
+								} else
+								{
+									Comm.unosRacuna(Comm.PK.get(cmbFirme.getSelectedIndex() - 1), txtValuta.getText());
+								}
 								for (int i = 0; i < tblArtiNaRac.getRowCount(); i++)
 								{
 									Comm.unosArtiklaSaRacuna(PKvektor.get(i), tblArtiNaRac.getValueAt(i, 1).toString());
